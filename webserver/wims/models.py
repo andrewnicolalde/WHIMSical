@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 
@@ -9,9 +10,9 @@ class Event(models.Model):
 class Item(models.Model):
     label = models.TextField()
     confidence = models.FloatField()
-    box = models.TextField()
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    box = JSONField()
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
 class Missing_items(models.Model):
     label = models.TextField()
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
