@@ -4,6 +4,7 @@
 import numpy as np
 import cv2
 from send_image_to_s3 import upload_image
+import time
 
 sdThresh = 20
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -55,12 +56,15 @@ while(True):
         # we just dropped below the threshold reset and trigger sending the image.
         above_thresh = False
         print("Just crossed below!")
-        file_name = 'img{:03d}.png'.format(i)
+        file_name = 'img{:d}.png'.format(int(time.time()))
         cv2.imwrite(file_name, frame3)
+        print("Created file:", file_name)
         upload_image(file_name)
+        print("Image uploaded!")
 
         i += 1
-        # send frame3
+        # Sleep for a while so we dont spam
+        time.sleep(3)
     elif stDev > sdThresh and not above_thresh:
         # we just crossed the threshold.
         above_thresh = True
