@@ -3,7 +3,12 @@
 	{% load static %}
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-	<link rel="stylesheet" type="text/css" href="{% static 'wims/style.css' %}">
+	<style>
+		img {
+			height: auto;
+			width: 50%;
+		}
+	</style>
 	<script>
 		$(document).ready(function() {
 			$.get("/wims/api/events", function(data) {
@@ -19,7 +24,7 @@
 					});
 
 
-					$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td></tr>")
+					$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td><td><a href=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"><img src=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"/></a></td></tr>")
 				});
 			});
 		});
@@ -30,7 +35,7 @@
 	<div class="text-center">
 		<h1>WhIMSical</h1>
 		<table id="event-table" class="table">
-			<tr><th>Time</th><th>Items</th><th>Missing Items</th></tr>
+			<tr><th style="width: 25%">Time</th><th style="width: 25%">Items</th><th style="width: 25%">Missing Items</th><th style="width: 25%">Image</th></tr>
 		</table>
 
 	</div>
