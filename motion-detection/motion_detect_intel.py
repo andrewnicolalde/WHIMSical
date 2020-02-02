@@ -3,6 +3,8 @@
 # To be modified.
 import numpy as np
 import cv2
+from send_image_to_s3 import upload_image
+import time
 
 sdThresh = 20
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -25,6 +27,12 @@ cap = cv2.VideoCapture(0)
 _, frame1 = cap.read()
 _, frame2 = cap.read()
 
+display = True
+try:
+    cv2.imshow('dist', frame2)
+except:
+    display = False
+
 above_thresh = False
 i = 0
 
@@ -32,7 +40,8 @@ n = 0
 while(True):
     _, frame3 = cap.read()
     rows, cols, _ = np.shape(frame3)
-    cv2.imshow('dist', frame3)
+    if display:
+        cv2.imshow('dist', frame3)
     dist = distMap(frame1, frame3)
 
     frame1 = frame2
@@ -54,9 +63,14 @@ while(True):
         # we just dropped below the threshold reset and trigger sending the image.
         above_thresh = False
         print("Just crossed below!")
-        cv2.imwrite('img{:03d}.png'.format(i), frame3)
-        i += 1
-        # send frame3
+        file_name = 'img{:d}.png'.format(int(time.time()))
+        cv2.imwrite(file_name, frame3)
+        print("Created file:", file_name)
+        upload_image(file_name)
+        print("Image uploaded!")
+
+        # Sleep for a while so we dont spam
+        time.sleep(3)
     elif stDev > sdThresh and not above_thresh:
         # we just crossed the threshold.
         above_thresh = True
