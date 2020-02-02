@@ -1,0 +1,38 @@
+<html>
+<head>
+	{% load static %}
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'wims/style.css' %}">
+	<script>
+		$(document).ready(function() {
+			$.get("/wims/api/events", function(data) {
+				data.forEach(element => {
+					itemHtml = "<ul class=\"list-unstyled\">"
+					element.items.forEach(item => {
+						itemHtml = itemHtml + "<li>" + item.label + " (" + item.confidence.toFixed(0) + "%)</li>"
+					});
+
+					missing_items_html = "<ul class=\"list-unstyled\">"
+					element.missing_items.forEach(item => {
+						missing_items_html = missing_items_html + "<li>" + item.label + "</li>"
+					});
+
+
+					$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td></tr>")
+				});
+			});
+		});
+	</script>
+
+</head>
+<body>
+	<div class="text-center">
+		<h1>WhIMSical</h1>
+		<table id="event-table" class="table">
+			<tr><th>Time</th><th>Items</th><th>Missing Items</th></tr>
+		</table>
+
+	</div>
+</body>
+</html>
