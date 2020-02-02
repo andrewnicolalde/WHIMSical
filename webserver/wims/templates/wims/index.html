@@ -1,0 +1,67 @@
+<html>
+<head>
+	{% load static %}
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<style>
+		img {
+			height: auto;
+			width: 50%;
+		}
+		th {
+			width: 25%
+		}
+		button {
+			margin-bottom: 10px;
+		}
+	</style>
+	<script>
+		function loadTable(only_show_missing) {
+			$("#event-table").append("<tr><th>Time</th><th>Items</th><th>Missing Items</th><th>Image</th></tr>");
+			$.get("/wims/api/events", function(data) {
+				data.forEach(element => {
+					if (!only_show_missing || element.missing_items.length > 0) {
+						itemHtml = "<ul class=\"list-unstyled\">"
+						element.items.forEach(item => {
+							itemHtml = itemHtml + "<li>" + item.label + " (" + item.confidence.toFixed(0) + "%)</li>"
+						});
+
+						missing_items_html = "<ul class=\"list-unstyled\">"
+						element.missing_items.forEach(item => {
+							missing_items_html = missing_items_html + "<li>" + item.label + "</li>"
+						});
+
+
+						$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td><td><a href=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"><img src=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"/></a></td></tr>")
+					}
+				});			
+			});
+
+		}
+		function refreshTable(){
+			$("#event-table").empty();
+			loadTable(false);
+		}
+
+		function onlyLoadMissing() {
+			$("#event-table").empty();
+			loadTable(true);
+		}
+
+		$(document).ready(function() {
+			loadTable(false);
+		});
+	</script>
+
+</head>
+<body>
+	<div class="text-center">
+		<h1>WHIMSical</h1>
+		<button type="button" class="btn btn-primary" onclick="refreshTable();">Refresh</button>
+		<button type="button" class="btn btn-warning" onclick="onlyLoadMissing();">Only Load Missing</button>
+		<table id="event-table" class="table">
+		</table>
+
+	</div>
+</body>
+</html>
