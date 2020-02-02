@@ -25,19 +25,18 @@ def lambda_handler(event, context):
             
             detected_objects.append(item)
 
+    print("Detected Items: " + json.dumps(detected_objects))
     missing_items = compare_recent(detected_objects)
+    print("Missing Items: " + json.dumps(missing_items))
     
-    if (len(missing_items) == 0):
-        remove_on_no_change(img_src)
-    else:
-        psql_save(img_src, detected_objects)
+    psql_save(img_src, detected_objects, missing_items)
     
 
     return {
         'statusCode': 200,
     }
 
-def psql_save(img_src, detected_objects):
+def psql_save(img_src, detected_objects, missing_items):
     try:
         conn = psycopg2.connect(host="hackawaydb.c8pcgo7bynyp.eu-west-2.rds.amazonaws.com", database="hackawaydb", user="postgres", password="seLYXH0File2HyParm4q")
         cur = conn.cursor()
@@ -51,6 +50,11 @@ def psql_save(img_src, detected_objects):
         
         for object in detected_objects:
             cur.execute(sql_item, (event_id, object["label_name"], object["confidence"], object["bounding_box"]))
+            
+        sql_missing = "INSERT INTO missing_items(label, event_id) VALUES (%s, %s)"
+        
+        for item in missing_items:
+            cur.execute(sql_missing, (item, event_id))
         
         conn.commit()
         cur.close()
@@ -75,9 +79,7 @@ def compare_recent(detected_objects):
         cur.close()
         conn.close()
         item_labels = [item[0] for item in items]
-        print("Item Labels: " + json.dumps(item_labels))
         detected_object_labels = [item['label_name'] for item in detected_objects]
-        print("Object Labels: " + json.dumps(detected_object_labels))
         
         missing_items = [label for label in item_labels if label not in detected_object_labels]
         
