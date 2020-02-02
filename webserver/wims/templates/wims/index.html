@@ -8,25 +8,48 @@
 			height: auto;
 			width: 50%;
 		}
+		th {
+			width: 25%
+		}
+		button {
+			margin-bottom: 10px;
+		}
 	</style>
 	<script>
-		$(document).ready(function() {
+		function loadTable(only_show_missing) {
+			$("#event-table").append("<tr><th>Time</th><th>Items</th><th>Missing Items</th><th>Image</th></tr>");
 			$.get("/wims/api/events", function(data) {
 				data.forEach(element => {
-					itemHtml = "<ul class=\"list-unstyled\">"
-					element.items.forEach(item => {
-						itemHtml = itemHtml + "<li>" + item.label + " (" + item.confidence.toFixed(0) + "%)</li>"
-					});
+					if (!only_show_missing || element.missing_items.length > 0) {
+						itemHtml = "<ul class=\"list-unstyled\">"
+						element.items.forEach(item => {
+							itemHtml = itemHtml + "<li>" + item.label + " (" + item.confidence.toFixed(0) + "%)</li>"
+						});
 
-					missing_items_html = "<ul class=\"list-unstyled\">"
-					element.missing_items.forEach(item => {
-						missing_items_html = missing_items_html + "<li>" + item.label + "</li>"
-					});
+						missing_items_html = "<ul class=\"list-unstyled\">"
+						element.missing_items.forEach(item => {
+							missing_items_html = missing_items_html + "<li>" + item.label + "</li>"
+						});
 
 
-					$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td><td><a href=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"><img src=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"/></a></td></tr>")
-				});
+						$("#event-table").append("<tr><td>" + element.created + "</td><td>" + itemHtml + "</td><td>" + missing_items_html + "</td><td><a href=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"><img src=\"https://hackaway2020.s3.eu-west-2.amazonaws.com/" + element.img_src + "\"/></a></td></tr>")
+					}
+				});			
 			});
+
+		}
+		function refreshTable(){
+			$("#event-table").empty();
+			loadTable(false);
+		}
+
+		function onlyLoadMissing() {
+			$("#event-table").empty();
+			loadTable(true);
+		}
+
+		$(document).ready(function() {
+			loadTable(false);
 		});
 	</script>
 
@@ -34,8 +57,9 @@
 <body>
 	<div class="text-center">
 		<h1>WhIMSical</h1>
+		<button type="button" class="btn btn-primary" onclick="refreshTable();">Refresh</button>
+		<button type="button" class="btn btn-warning" onclick="onlyLoadMissing();">Only Load Missing</button>
 		<table id="event-table" class="table">
-			<tr><th style="width: 25%">Time</th><th style="width: 25%">Items</th><th style="width: 25%">Missing Items</th><th style="width: 25%">Image</th></tr>
 		</table>
 
 	</div>
