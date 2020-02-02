@@ -16,8 +16,8 @@ def distMap(frame1, frame2):
     dist = np.uint8(norm32*255)
     return dist
 
-cv2.namedWindow('frame')
-cv2.namedWindow('dist')
+# cv2.namedWindow('frame')
+# cv2.namedWindow('dist')
 
 #capture video stream from camera source. 0 refers to first camera, 1 referes to 2nd and so on.
 cap = cv2.VideoCapture(0)
@@ -25,11 +25,13 @@ cap = cv2.VideoCapture(0)
 _, frame1 = cap.read()
 _, frame2 = cap.read()
 
-facecount = 0
+above_thresh = False
+
+n = 0
 while(True):
     _, frame3 = cap.read()
     rows, cols, _ = np.shape(frame3)
-    cv2.imshow('dist', frame3)
+    # cv2.imshow('dist', frame3)
     dist = distMap(frame1, frame3)
 
     frame1 = frame2
@@ -44,11 +46,17 @@ while(True):
     # calculate st dev test
     _, stDev = cv2.meanStdDev(mod)
 
-    cv2.imshow('dist', mod)
-    cv2.putText(frame2, "Standard Deviation - {}".format(round(stDev[0][0],0)), (70, 70), font, 1, (255, 0, 255), 1, cv2.LINE_AA)
-    if stDev > sdThresh:
-            print("Motion detected.. Do something!!!");
-            #TODO: Face Detection 2
+    # cv2.imshow('dist', mod)
+    # cv2.putText(frame2, "Standard Deviation - {}".format(round(stDev[0][0],0)), (70, 70), font, 1, (255, 0, 255), 1, cv2.LINE_AA)
+    if stDev < sdThresh and above_thresh:
+        # we just dropped below the threshold reset and trigger sending the image.
+        above_thresh = False
+        print("Just crossed below!")
+        # send frame3
+    elif stDev > sdThresh and not above_thresh:
+        # we just crossed the threshold.
+        above_thresh = True
+
 
     cv2.imshow('frame', frame2)
     if cv2.waitKey(1) & 0xFF == 27:
