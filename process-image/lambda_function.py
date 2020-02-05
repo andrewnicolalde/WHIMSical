@@ -22,8 +22,8 @@ def lambda_handler(event, context):
                 "bounding_box": json.dumps(label["Instances"][0]["BoundingBox"]),
                 "confidence": label["Confidence"]
             }
-            
-            detected_objects.append(item)
+            if item["label_name"] != "Person":
+                detected_objects.append(item)
 
     print("Detected Items: " + json.dumps(detected_objects))
     missing_items = compare_recent(detected_objects)
@@ -40,18 +40,18 @@ def psql_save(img_src, detected_objects, missing_items):
     try:
         conn = psycopg2.connect(host="hackawaydb.c8pcgo7bynyp.eu-west-2.rds.amazonaws.com", database="hackawaydb", user="postgres", password="seLYXH0File2HyParm4q")
         cur = conn.cursor()
-        sql_event = "INSERT INTO event(created, img_src) VALUES(%s,%s) RETURNING id"
+        sql_event = "INSERT INTO wims_event(created, img_src) VALUES(%s,%s) RETURNING id"
         cur.execute(sql_event, (datetime.now(), img_src,))
         
         event_id = cur.fetchone()[0]
         
-        sql_item = "INSERT INTO item(event_id, label, confidence, box) VALUES (%s, %s, %s, %s)"
+        sql_item = "INSERT INTO wims_item(event_id, label, confidence, box) VALUES (%s, %s, %s, %s)"
         
         
         for object in detected_objects:
             cur.execute(sql_item, (event_id, object["label_name"], object["confidence"], object["bounding_box"]))
             
-        sql_missing = "INSERT INTO missing_items(label, event_id) VALUES (%s, %s)"
+        sql_missing = "INSERT INTO wims_missing_items(label, event_id) VALUES (%s, %s)"
         
         for item in missing_items:
             cur.execute(sql_missing, (item, event_id))
@@ -70,7 +70,7 @@ def compare_recent(detected_objects):
         conn = psycopg2.connect(host="hackawaydb.c8pcgo7bynyp.eu-west-2.rds.amazonaws.com", database="hackawaydb", user="postgres", password="seLYXH0File2HyParm4q")
         cur = conn.cursor()
         
-        latest_items_sql = "SELECT label FROM item WHERE item.event_id = (SELECT  event.id FROM event ORDER BY created DESC LIMIT 1);"
+        latest_items_sql = "SELECT label FROM wims_item WHERE wims_item.event_id = (SELECT  wims_event.id FROM wims_event ORDER BY created DESC LIMIT 1);"
         
         cur.execute(latest_items_sql)
         items = cur.fetchall()
