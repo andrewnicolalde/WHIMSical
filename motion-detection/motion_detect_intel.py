@@ -27,6 +27,12 @@ cap = cv2.VideoCapture(0)
 _, frame1 = cap.read()
 _, frame2 = cap.read()
 
+display = True
+try:
+    cv2.imshow('dist', frame2)
+except:
+    display = False
+
 above_thresh = False
 i = 0
 
@@ -34,7 +40,8 @@ n = 0
 while(True):
     _, frame3 = cap.read()
     rows, cols, _ = np.shape(frame3)
-    cv2.imshow('dist', frame3)
+    if display:
+        cv2.imshow('dist', frame3)
     dist = distMap(frame1, frame3)
 
     frame1 = frame2
@@ -62,7 +69,6 @@ while(True):
         upload_image(file_name)
         print("Image uploaded!")
 
-        i += 1
         # Sleep for a while so we dont spam
         time.sleep(3)
     elif stDev > sdThresh and not above_thresh:

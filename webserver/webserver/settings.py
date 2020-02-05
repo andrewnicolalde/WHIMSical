@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'wims',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +56,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(os.path.dirname(__file__), '../restapi/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -77,6 +76,14 @@ WSGI_APPLICATION = 'webserver.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
+'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hackawaydb',
+        'USER': 'postgres',
+        'PASSWORD': 'seLYXH0File2HyParm4q',
+        'HOST': 'hackawaydb.c8pcgo7bynyp.eu-west-2.rds.amazonaws.com',
+        'PORT': '5432',
+    }
 }
 
 

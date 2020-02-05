@@ -10,7 +10,7 @@ def upload_image(image_filename):
     aws_access_key_id = config.ACCESS_KEY,
     aws_secret_access_key = config.SECRET_KEY)
     try:
-        response = s3_client.upload_file(image_filename, "hackaway2020", image_filename)
+        response = s3_client.upload_file(image_filename, "hackaway2020", image_filename, ExtraArgs={'ContentType': 'image/png'})
     except ClientError as e:
         logging.error(e)
         print("---_______---")
